@@ -1,0 +1,8 @@
+- [x] Add back button to cart.html
+- [x] Add back button to products.html
+- [x] Add back button to keripik-nangka.html
+- [x] Add back button to keripik-tempe.html
+- [x] Add back button to ranginang.html
+- [x] Add back button to checkout.html
+- [x] Add back button to admin.html
+- [x] Test back buttons on all pages

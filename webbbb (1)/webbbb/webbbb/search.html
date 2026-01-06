@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Pencarian - Camilan Emak</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Dosis:wght@600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        :root {
+            --orange-primary: #FF7043;
+            --orange-dark: #D32F2F;
+            --orange-accent: #FFC107;
+            --dark-text: #2c3e50;
+            --light-bg: #fdf6f3;
+            --white: #ffffff;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.5;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: var(--white);
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo a {
+            font-family: 'Dosis', sans-serif;
+            font-size: 2.2em;
+            font-weight: 900;
+            color: var(--orange-primary);
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+        }
+        .logo .logo-img {
+            height: 40px;
+            width: auto;
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background-color: var(--dark-text);
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+
+        .nav-links.mobile-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            flex-direction: column;
+            padding: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .nav-links.mobile-menu li {
+            text-align: center;
+        }
+
+        .nav-links.mobile-menu a {
+            margin: 10px 0;
+            padding: 12px 0;
+            border-radius: 8px;
+            margin-left: 0;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links.mobile-menu a:hover {
+            background-color: rgba(255, 112, 67, 0.1);
+        }
+
+        .nav-links li a {
+            text-decoration: none;
+            color: var(--dark-text);
+            font-weight: 500;
+            padding: 10px 10px;
+            margin-left: 5px;
+            transition: color 0.3s, border-bottom 0.3s;
+            font-size: 0.9em;
+        }
+
+        .nav-links li a:hover {
+            color: var(--orange-primary);
+            border-bottom: 3px solid var(--orange-primary);
+        }
+
+        .cta-nav {
+            background-color: var(--orange-accent);
+            color: var(--dark-text) !important;
+            border-radius: 25px;
+            padding: 8px 15px !important;
+            font-weight: 700 !important;
+            border-bottom: none !important;
+            transition: background-color 0.3s;
+        }
+
+        .cta-nav:hover {
+            background-color: #ffca28;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        #search-input {
+            padding: 8px 12px;
+            border: 2px solid var(--orange-primary);
+            border-radius: 25px;
+            outline: none;
+            font-size: 0.9em;
+            width: 200px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        #search-input:focus {
+            border-color: var(--orange-accent);
+            box-shadow: 0 0 5px rgba(255, 112, 67, 0.5);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 10px;
+            color: var(--orange-primary);
+            font-size: 1em;
+            pointer-events: none;
+        }
+
+        .back-btn { background: var(--orange-primary); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 14px; transition: all 0.3s ease; }
+        .back-btn:hover { background: var(--orange-dark); transform: translateY(-2px); }
+
+        .section-title {
+            font-family: 'Dosis', sans-serif;
+            text-align: center;
+            font-size: 2.8em;
+            color: var(--orange-dark);
+            margin-bottom: 50px;
+            padding-top: 60px;
+            font-weight: 700;
+        }
+
+        .search-query {
+            text-align: center;
+            font-size: 1.2em;
+            color: var(--orange-primary);
+            margin-bottom: 20px;
+        }
+
+        .no-results {
+            text-align: center;
+            font-size: 1.2em;
+            color: var(--dark-text);
+            margin-top: 50px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            padding: 0 0 60px 0;
+        }
+
+        .product-card {
+            background-color: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.4s, box-shadow 0.4s, border-color 0.4s;
+            border: 2px solid transparent;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out, box-shadow 0.4s, border-color 0.4s;
+        }
+
+        .product-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 112, 67, 0.3);
+            border-color: var(--orange-primary);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .product-info {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .product-info h3 {
+            font-family: 'Dosis', sans-serif;
+            color: var(--orange-dark);
+            margin-top: 0;
+            font-weight: 700;
+        }
+
+        .product-info p {
+            color: #555;
+            margin: 10px 0;
+        }
+
+        .price {
+            font-size: 1.2em;
+            color: var(--orange-primary);
+            font-weight: 700;
+        }
+
+        .cta-product {
+            display: inline-block;
+            background-color: var(--orange-primary);
+            color: var(--white) !important;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-product:hover {
+            background-color: #e6603a;
+        }
+
+        footer {
+            background-color: var(--orange-dark);
+            color: var(--white);
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .copyright {
+            border-top: 1px solid #666;
+            margin-top: 30px;
+            padding-top: 15px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #FF7043, #FFC107);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(255, 112, 67, 0.3);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .notification.show {
+            transform: translateX(0);
+            animation: bounceIn 0.6s ease-out;
+        }
+        @keyframes bounceIn {
+            0% { transform: translateX(100%) scale(0.3); }
+            50% { transform: translateX(0) scale(1.05); }
+            70% { transform: translateX(0) scale(0.9); }
+            100% { transform: translateX(0) scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-links.mobile-menu {
+                display: flex;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 2em;
+            }
+
+            .search-container {
+                display: none;
+            }
+
+            .navbar {
+                justify-content: space-between;
+            }
+
+            .logo {
+                flex: 1;
+            }
+
+            .hamburger {
+                flex: 0;
+            }
+
+            .product-info {
+                padding: 15px;
+            }
+
+            .cta-product {
+                padding: 8px 16px;
+                font-size: 0.9em;
+            }
+
+            footer {
+                padding: 30px 0;
+            }
+
+            .notification {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                width: auto;
+                transform: translateY(-100%);
+            }
+
+            .notification.show {
+                transform: translateY(0);
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1023px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+            }
+
+            .section-title {
+                font-size: 2.5em;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 30px;
+            }
+
+            .section-title {
+                font-size: 2.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> Kembali</button>
+                <a href="Untitled-1.html">
+                    <img src="logo.jpeg" alt="Logo Camilan Emak" class="logo-img">
+                </a>
+            </div>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Cari produk...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="Untitled-1.html#hero">Beranda</a></li>
+                    <li><a href="Untitled-1.html#menu">Menu</a></li>
+                    <li><a href="cart.html">Keranjang</a></li>
+                    <li><a href="Untitled-1.html#best-seller">Best Seller</a></li>
+                    <li><a href="Untitled-1.html#sejarah">Sejarah</a></li>
+                    <li><a href="Untitled-1.html#kualitas">Mutu</a></li>
+                    <li><a href="Untitled-1.html#ulasan">Ulasan</a></li>
+                    <li><a href="Untitled-1.html#lokasi" class="cta-nav">Lokasi & Kontak</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="container">
+            <h2 class="section-title">Hasil Pencarian</h2>
+            <div id="search-query" class="search-query"></div>
+            <div id="products-grid" class="products-grid">
+                <!-- Products will be dynamically inserted here -->
+            </div>
+            <div id="no-results" class="no-results" style="display: none;">
+                Tidak ada produk yang ditemukan untuk pencarian Anda.
+            </div>
+        </section>
+    </main>
+
+    <div id="notification" class="notification">
+        <i class="fas fa-shopping-cart"></i> <span id="notification-text"></span>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="logo" style="font-size: 1.8em; color: var(--white);">CAMILAN EMAK</div>
+            <p>Camilan yang selalu dinanti keluarga.</p>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 Camilan Emak. Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+
+    <script>
+        // All products data
+        const allProducts = [
+            { name: 'Keripik Nangka Balado', description: 'Keripik nangka dengan bumbu balado pedas yang menggugah selera.', price: 20000, image: '2.jpeg' },
+            { name: 'Keripik Singkong', description: 'Keripik singkong renyah dengan rasa gurih dan pedas.', price: 18000, image: '3.jpeg' },
+            { name: 'Keripik Kentang Pedas', description: 'Keripik kentang dengan tingkat kepedasan yang pas.', price: 22000, image: '4.jpeg' },
+            { name: 'Keripik Pisang', description: 'Keripik pisang manis yang cocok untuk camilan sehari-hari.', price: 15000, image: '5.jpeg' },
+            { name: 'Keripik Talas', description: 'Keripik talas renyah dengan rasa unik dan gurih.', price: 19000, image: '6.jpeg' },
+            { name: 'Keripik Ubi', description: 'Keripik ubi ungu yang sehat dan lezat.', price: 17000, image: '7.jpeg' },
+            { name: 'Keripik Jagung', description: 'Keripik jagung manis dengan tekstur yang renyah.', price: 16000, image: '8.jpeg' },
+            { name: 'Keripik Bayam', description: 'Keripik bayam sehat yang kaya nutrisi.', price: 14000, image: '1.jpeg' },
+            { name: 'Roti Maryam', description: 'Roti maryam renyah dengan rasa manis dan gurih.', price: 15000, image: '4.jpeg' },
+            { name: 'Pastel Beku', description: 'Pastel beku dengan isian sayuran yang lezat.', price: 20000, image: '4.jpeg' },
+            { name: 'Cireng', description: 'Cireng renyah dengan bumbu yang pedas dan nikmat.', price: 18000, image: '4.jpeg' },
+            { name: 'Risoles', description: 'Risoles dengan isian daging dan sayuran yang gurih.', price: 22000, image: '4.jpeg' },
+            { name: 'Epok-Epok', description: 'Epok-epok jagung dengan rasa manis dan gurih.', price: 16000, image: '4.jpeg' }
+        ];
+
+        function addToCart(name, price, image) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existingItem = cart.find(item => item.name === name);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ name, price: parseInt(price), image, quantity: 1 });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            showNotification(`${name} telah ditambahkan ke keranjang!`);
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notification-text');
+            text.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function toggleMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('mobile-menu');
+        }
+
+        function getQueryParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function displaySearchResults(query) {
+            const queryDisplay = document.getElementById('search-query');
+            queryDisplay.textContent = `Hasil pencarian untuk: "${query}"`;
+
+            const filteredProducts = allProducts.filter(product =>
+                product.name.toLowerCase().includes(query.toLowerCase()) ||
+                product.description.toLowerCase().includes(query.toLowerCase())
+            );
+
+            const productsGrid = document.getElementById('products-grid');
+            const noResults = document.getElementById('no-results');
+
+            if (filteredProducts.length === 0) {
+                productsGrid.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+            productsGrid.innerHTML = filteredProducts.map(product => `
+                <div class="product-card fade-in">
+                    <img src="${product.image}" alt="${product.name}">
+                    <div class="product-info">
+                        <h3>${product.name}</h3>
+                        <p>${product.description}</p>
+                        <p class="price">Rp ${product.price.toLocaleString()} / Pak</p>
+                        <button class="cta-product" onclick="addToCart('${product.name}', '${product.price}', '${product.image}')">Tambah ke Keranjang</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add fade-in animation
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.product-card').forEach(element => {
+                observer.observe(element);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const query = getQueryParameter('q') || '';
+            displaySearchResults(query);
+
+            // Search functionality - redirect to unified search page
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const newQuery = e.target.value.trim();
+                    if (newQuery) {
+                        window.location.href = `search.html?q=${encodeURIComponent(newQuery)}`;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

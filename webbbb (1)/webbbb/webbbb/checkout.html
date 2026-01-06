@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Camilan Emak</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg: #f4f1de;
+            --accent: #e07a5f;
+            --secondary: #81b29a;
+            --muted: #f2cc8f;
+            --primary: #4a7c59;
+            --highlight: #f4a261;
+            --text: #3d405b;
+            --card: #ffffff;
+            --glass: rgba(255,255,255,0.8);
+            --radius: 16px;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: linear-gradient(180deg, var(--bg), #fff); color: var(--text); }
+        header { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; position: sticky; top: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(6px); z-index: 10; border-bottom: 1px solid rgba(0,0,0,0.03); }
+        .brand { display: flex; gap: 12px; align-items: center; }
+        .logo { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
+        .logo .logo-img { height: 40px; }
+        nav a { margin-left: 18px; color: var(--muted); text-decoration: none; font-weight: 600; }
+        .checkout-container { max-width: 1200px; margin: 0 auto; padding: 48px 28px; display: flex; gap: 48px; animation: fadeIn 0.8s ease-out; }
+        .checkout-form { flex: 1; background: var(--card); border-radius: 20px; padding: 32px; box-shadow: 0 12px 32px rgba(0,0,0,0.06); }
+        .form-section { margin-bottom: 32px; }
+        .form-section h3 { margin: 0 0 20px; color: var(--primary); font-size: 1.5em; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text); }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px 16px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 16px; transition: border-color 0.3s ease; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); }
+        .error { color: #dc3545; font-size: 14px; margin-top: 4px; }
+        .payment-options { display: flex; flex-direction: column; gap: 12px; }
+        .payment-option { padding: 16px; border: 2px solid #e9ecef; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 12px; }
+        .payment-option:hover { border-color: var(--accent); background: rgba(224, 122, 95, 0.05); }
+        .payment-option.selected { border-color: var(--accent); background: rgba(224, 122, 95, 0.1); }
+        .payment-option h4 { margin: 0; color: var(--primary); }
+        .payment-option p { margin: 0; color: var(--muted); font-size: 14px; }
+        .checkout-btn { width: 100%; padding: 16px; border-radius: 16px; background: linear-gradient(135deg, var(--accent), var(--secondary)); color: #fff; border: none; font-weight: 700; font-size: 1.1em; cursor: pointer; transition: all 0.3s ease; }
+        .checkout-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(224, 122, 95, 0.3); }
+        .back-btn { background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 14px; transition: all 0.3s ease; }
+        .back-btn:hover { background: var(--secondary); transform: translateY(-2px); }
+        .cart-summary { width: 350px; background: var(--card); border-radius: 20px; padding: 32px; box-shadow: 0 12px 32px rgba(0,0,0,0.06); height: fit-content; }
+        .cart-summary h3 { margin: 0 0 20px; color: var(--primary); font-size: 1.5em; }
+        .cart-item { display: flex; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #e9ecef; }
+        .cart-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .item-info { flex: 1; }
+        .item-info img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+        .item-details h4 { margin: 0 0 4px; font-size: 14px; color: var(--primary); }
+        .item-details p { margin: 0; font-size: 12px; color: var(--muted); }
+        .quantity-controls { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+        .quantity-btn { background: var(--accent); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; transition: background 0.3s ease; }
+        .quantity-btn:hover { background: var(--secondary); }
+        .quantity { font-weight: 600; color: var(--primary); min-width: 20px; text-align: center; }
+        .item-price { font-weight: 700; color: var(--secondary); }
+        .total { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--accent); font-size: 1.2em; font-weight: 700; color: var(--primary); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) { .checkout-container { flex-direction: column; } .cart-summary { width: 100%; } }
+
+        /* Success Modal Styles */
+        .success-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .success-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-content {
+            background: linear-gradient(135deg, var(--card), #ffffff);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.7) translateY(-50px);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .success-modal.show .success-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            color: white;
+            animation: bounceIn 0.8s ease-out;
+        }
+
+        .success-title {
+            color: var(--primary);
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .success-message {
+            color: var(--text);
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .order-details {
+            background: rgba(74, 124, 89, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .order-details h4 {
+            color: var(--primary);
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .order-details p {
+            margin: 5px 0;
+            color: var(--text);
+            font-size: 0.95em;
+        }
+
+        .success-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 30px;
+            animation: fadeInUp 0.8s ease-out 0.8s both;
+        }
+
+        .success-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 1em;
+        }
+
+        .success-btn.primary {
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            color: white;
+        }
+
+        .success-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(224, 122, 95, 0.3);
+        }
+
+        .success-btn.secondary {
+            background: var(--muted);
+            color: var(--primary);
+        }
+
+        .success-btn.secondary:hover {
+            background: var(--highlight);
+            color: white;
+        }
+
+        /* Confetti Animation */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        .confetti:nth-child(odd) {
+            background: var(--secondary);
+            animation-delay: 0.5s;
+        }
+
+        .confetti:nth-child(3n) {
+            background: var(--highlight);
+            animation-delay: 1s;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Progress bar for auto-redirect */
+        .redirect-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .redirect-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--secondary));
+            width: 0%;
+            animation: progress-fill 5s linear forwards;
+        }
+
+        @keyframes progress-fill {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--secondary);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+        .notification.show { transform: translateX(0); }
+        .notification.success { background: var(--secondary); }
+        .notification.error { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> Kembali</button>
+            <div class="logo"><img src="logo.jpeg" alt="Logo Camilan Emak" class="logo-img"></div>
+            <div>
+                <div style="font-weight:700">Camilan Emak</div>
+                <div style="font-size:12px;color:var(--muted)">Camilan rumahan, rasa penuh cinta</div>
+            </div>
+        </div>
+        <nav>
+            <a href="Untitled-1.html">Beranda</a>
+            <a href="products.html">Produk</a>
+            <a href="cart.html">Keranjang</a>
+        </nav>
+    </header>
+
+    <div class="checkout-container">
+        <div class="checkout-form">
+            <div class="form-section">
+                <h3>Informasi Pengiriman</h3>
+                <div class="form-group">
+                    <label for="name">Nama Lengkap</label>
+                    <input type="text" id="name" required>
+                    <div class="error" id="name-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                    <div class="error" id="email-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Nomor Telepon</label>
+                    <input type="tel" id="phone" required>
+                    <div class="error" id="phone-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="address">Alamat Lengkap</label>
+                    <textarea id="address" rows="4" required></textarea>
+                    <div class="error" id="address-error"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Metode Pembayaran</h3>
+                <div class="payment-options">
+                    <div class="payment-option" data-method="bank-bca">
+                        <i class="fas fa-university" style="color: var(--accent); font-size: 24px;"></i>
+                        <div>
+                            <h4>Transfer BCA</h4>
+                            <p>Transfer ke rekening BCA kami</p>
+                        </div>
+                    </div>
+                    <div class="payment-option" data-method="bank-bri">
+                        <i class="fas fa-university" style="color: var(--accent); font-size: 24px;"></i>
+                        <div>
+                            <h4>Transfer BRI</h4>
+                            <p>Transfer ke rekening BRI kami</p>
+                        </div>
+                    </div>
+                    <div class="payment-option" data-method="bank-mandiri">
+                        <i class="fas fa-university" style="color: var(--accent); font-size: 24px;"></i>
+                        <div>
+                            <h4>Transfer Mandiri</h4>
+                            <p>Transfer ke rekening Mandiri kami</p>
+                        </div>
+                    </div>
+                    <div class="payment-option" data-method="e-wallet-gopay">
+                        <i class="fas fa-mobile-alt" style="color: var(--accent); font-size: 24px;"></i>
+                        <div>
+                            <h4>GoPay</h4>
+                            <p>Bayar menggunakan GoPay</p>
+                        </div>
+                    </div>
+                    <div class="payment-option" data-method="e-wallet-ovo">
+                        <i class="fas fa-mobile-alt" style="color: var(--accent); font-size: 24px;"></i>
+                        <div>
+                            <h4>OVO</h4>
+                            <p>Bayar menggunakan OVO</p>
+                        </div>
+                    </div>
+                    <div class="payment-option" data-method="e-wallet-dana">
+                        <i class="fas fa-mobile-alt" style="color: var(--accent); font-size: 24px;"></i>
+                        <div>
+                            <h4>Dana</h4>
+                            <p>Bayar menggunakan Dana</p>
+                        </div>
+                    </div>
+                    <div class="payment-option" data-method="cod">
+                        <i class="fas fa-hand-holding-usd" style="color: var(--accent); font-size: 24px;"></i>
+                        <div>
+                            <h4>Cash on Delivery</h4>
+                            <p>Bayar saat barang diterima</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="error" id="payment-error"></div>
+            </div>
+
+            <button class="checkout-btn" onclick="processOrder()">Pesan Sekarang</button>
+        </div>
+
+        <div class="cart-summary">
+            <h3>Ringkasan Pesanan</h3>
+            <div id="cart-items-summary"></div>
+            <div class="total">
+                <span>Total</span>
+                <span id="total-price">Rp 0</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i> <span id="notification-text"></span>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal" id="successModal">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 class="success-title">Pesanan Berhasil!</h2>
+            <p class="success-message">Terima kasih telah memesan camilan Emak. Kami akan segera memproses pesanan Anda dan menghubungi untuk konfirmasi pembayaran.</p>
+            <div class="order-details" id="orderDetails">
+                <h4>Detail Pesanan</h4>
+                <p><strong>Nama:</strong> <span id="orderName"></span></p>
+                <p><strong>Email:</strong> <span id="orderEmail"></span></p>
+                <p><strong>Pembayaran:</strong> <span id="orderPayment"></span></p>
+                <p><strong>Total:</strong> <span id="orderTotal"></span></p>
+            </div>
+            <div class="success-buttons">
+                <button class="success-btn primary" onclick="continueShopping()">Lanjut Belanja</button>
+                <a href="Untitled-1.html" class="success-btn secondary">Kembali ke Beranda</a>
+            </div>
+            <div class="redirect-progress">
+                <div class="redirect-progress-bar"></div>
+            </div>
+            <p style="font-size: 0.9em; color: var(--muted); margin-top: 10px;">Otomatis kembali ke beranda dalam 5 detik...</p>
+        </div>
+        <!-- Confetti elements -->
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+    </div>
+
+    <script>
+        function loadCheckout() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItemsSummary = document.getElementById('cart-items-summary');
+            cartItemsSummary.innerHTML = '';
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                cartItemsSummary.innerHTML += `
+                    <div class="cart-item">
+                        <div class="item-info">
+                            <img src="${item.image}" alt="${item.name}">
+                            <div class="item-details">
+                                <h4>${item.name}</h4>
+                                <div class="quantity-controls">
+                                    <button class="quantity-btn minus" data-index="${index}"><i class="fas fa-minus"></i></button>
+                                    <span class="quantity">${item.quantity}</span>
+                                    <button class="quantity-btn plus" data-index="${index}"><i class="fas fa-plus"></i></button>
+                                </div>
+                                <p>Rp ${item.price.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div class="item-price">Rp ${itemTotal.toLocaleString()}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('total-price').textContent = `Rp ${total.toLocaleString()}`;
+        }
+
+        function processOrder() {
+            // Clear previous errors
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
+
+            // Get form values
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const selectedPayment = document.querySelector('.payment-option.selected');
+
+            // Validate form
+            let isValid = true;
+
+            if (!name) {
+                document.getElementById('name-error').textContent = 'Nama wajib diisi';
+                isValid = false;
+            }
+
+            if (!email || !/\S+@\S+\.\S+/.test(email)) {
+                document.getElementById('email-error').textContent = 'Email valid wajib diisi';
+                isValid = false;
+            }
+
+            if (!phone) {
+                document.getElementById('phone-error').textContent = 'Nomor telepon wajib diisi';
+                isValid = false;
+            }
+
+            if (!address) {
+                document.getElementById('address-error').textContent = 'Alamat wajib diisi';
+                isValid = false;
+            }
+
+            if (!selectedPayment) {
+                document.getElementById('payment-error').textContent = 'Pilih metode pembayaran';
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Store order for admin notification
+                const order = {
+                    id: Date.now(),
+                    name,
+                    email,
+                    phone,
+                    address,
+                    paymentMethod: selectedPayment.dataset.method,
+                    items: JSON.parse(localStorage.getItem('cart')) || [],
+                    total: parseInt(document.getElementById('total-price').textContent.replace(/\D/g, '')),
+                    timestamp: new Date().toISOString(),
+                    status: 'pending'
+                };
+
+                const orders = JSON.parse(localStorage.getItem('admin_orders')) || [];
+                orders.push(order);
+                localStorage.setItem('admin_orders', JSON.stringify(orders));
+
+                // Notify admin panel about new order
+                const channel = new BroadcastChannel('camilan-emak-orders');
+                channel.postMessage({ type: 'new_order', order });
+
+                // Show success modal instead of alert
+                showSuccessModal(name, email, selectedPayment.dataset.method, order.total);
+                localStorage.removeItem('cart');
+            }
+        }
+
+        // Payment method selection
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+            });
+        });
+
+        // Quantity update functions
+        function updateQuantity(index, change) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart[index]) {
+                cart[index].quantity += change;
+                if (cart[index].quantity <= 0) {
+                    cart.splice(index, 1); // Remove item if quantity is 0 or less
+                }
+                localStorage.setItem('cart', JSON.stringify(cart));
+                loadCheckout(); // Reload the checkout summary
+            }
+        }
+
+        // Event listeners for quantity buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.quantity-btn.plus')) {
+                const index = e.target.closest('.quantity-btn.plus').dataset.index;
+                updateQuantity(parseInt(index), 1);
+            } else if (e.target.closest('.quantity-btn.minus')) {
+                const index = e.target.closest('.quantity-btn.minus').dataset.index;
+                updateQuantity(parseInt(index), -1);
+            }
+        });
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notification-text');
+            text.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function showSuccessModal(name, email, paymentMethod, total) {
+            // Show notification first
+            showNotification('Pesanan berhasil diproses!', 'success');
+
+            // Populate modal details
+            document.getElementById('orderName').textContent = name;
+            document.getElementById('orderEmail').textContent = email;
+            document.getElementById('orderPayment').textContent = paymentMethod.replace('-', ' ').toUpperCase();
+            document.getElementById('orderTotal').textContent = `Rp ${total.toLocaleString()}`;
+
+            // Show modal
+            const modal = document.getElementById('successModal');
+            modal.classList.add('show');
+
+            // Auto redirect after 5 seconds
+            setTimeout(() => {
+                window.location.href = 'Untitled-1.html';
+            }, 5000);
+        }
+
+        // Load checkout on page load
+        loadCheckout();
+
+    </script>
+</body>
+</html>

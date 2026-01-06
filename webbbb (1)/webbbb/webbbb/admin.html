@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Camilan Emak</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg: #f4f1de;
+            --accent: #e07a5f;
+            --secondary: #81b29a;
+            --muted: #f2cc8f;
+            --primary: #4a7c59;
+            --highlight: #f4a261;
+            --text: #3d405b;
+            --card: #ffffff;
+            --glass: rgba(255,255,255,0.8);
+            --radius: 16px;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: linear-gradient(180deg, var(--bg), #fff); color: var(--text); }
+        header { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; position: sticky; top: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(6px); z-index: 10; border-bottom: 1px solid rgba(0,0,0,0.03); }
+        .brand { display: flex; gap: 12px; align-items: center; }
+        .logo { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
+        .logo-img { height: 40px; width: auto; max-width: 100%; }
+        nav a { margin-left: 18px; color: var(--muted); text-decoration: none; font-weight: 600; }
+        .dashboard-container { max-width: 1400px; margin: 0 auto; padding: 48px 28px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 48px; }
+        .stat-card { background: var(--card); border-radius: 20px; padding: 32px; box-shadow: 0 12px 32px rgba(0,0,0,0.06); text-align: center; }
+        .stat-card h3 { margin: 0 0 8px; color: var(--primary); font-weight: 700; font-size: 2.5em; }
+        .stat-card p { margin: 0; color: var(--muted); font-weight: 600; }
+        .orders-section { background: var(--card); border-radius: 20px; padding: 32px; box-shadow: 0 12px 32px rgba(0,0,0,0.06); }
+        .orders-section h3 { margin: 0 0 24px; color: var(--primary); font-weight: 700; }
+        .orders-filter { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+        .filter-btn { padding: 8px 16px; border: 2px solid #e0e0e0; border-radius: 12px; background: none; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .filter-btn.active { border-color: var(--accent); background: rgba(224, 122, 95, 0.1); color: var(--accent); }
+        .orders-table { width: 100%; border-collapse: collapse; }
+        .orders-table th, .orders-table td { padding: 16px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        .orders-table th { background: var(--bg); font-weight: 700; color: var(--primary); }
+        .status { padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: 600; }
+        .status.pending { background: #fff3cd; color: #856404; }
+        .status.processing { background: #cce5ff; color: #004085; }
+        .status.completed { background: #d4edda; color: #155724; }
+        .status.cancelled { background: #f8d7da; color: #721c24; }
+        .action-btn { padding: 6px 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-right: 8px; }
+        .action-btn.process { background: var(--secondary); color: white; }
+        .action-btn.complete { background: var(--primary); color: white; }
+        .action-btn.cancel { background: #dc3545; color: white; }
+        .order-details { background: var(--bg); padding: 16px; border-radius: 12px; margin-top: 8px; }
+        .order-item { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .order-item img { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; }
+        .notification { position: fixed; top: 20px; right: 20px; background: var(--accent); color: white; padding: 16px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 1000; transform: translateX(100%); transition: transform 0.3s; }
+        .notification.show { transform: translateX(0); }
+        .notification.success { background: var(--secondary); }
+        .notification.error { background: #dc3545; }
+        .back-btn { background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 14px; transition: all 0.3s ease; }
+        .back-btn:hover { background: var(--secondary); transform: translateY(-2px); }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } .orders-filter { justify-content: center; } .orders-table { font-size: 0.9em; } }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> Kembali</button>
+            <div class="logo"><img src="logo.jpeg" alt="Logo Camilan Emak" class="logo-img"></div>
+            <div>
+                <div style="font-weight:700">Camilan Emak</div>
+                <div style="font-size:12px;color:var(--muted)">Admin Panel</div>
+            </div>
+        </div>
+        <nav>
+            <a href="Untitled-1.html">Kembali ke Website</a>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="total-orders">0</h3>
+                <p>Total Pesanan</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="pending-orders">0</h3>
+                <p>Pesanan Pending</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="processing-orders">0</h3>
+                <p>Sedang Diproses</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="completed-orders">0</h3>
+                <p>Selesai</p>
+            </div>
+        </div>
+
+        <div class="orders-section">
+            <h3>Daftar Pesanan</h3>
+            <div class="orders-filter">
+                <button class="filter-btn active" data-filter="all">Semua</button>
+                <button class="filter-btn" data-filter="pending">Pending</button>
+                <button class="filter-btn" data-filter="processing">Diproses</button>
+                <button class="filter-btn" data-filter="completed">Selesai</button>
+                <button class="filter-btn" data-filter="cancelled">Dibatalkan</button>
+            </div>
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>ID Pesanan</th>
+                        <th>Nama Pelanggan</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Tanggal</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-tbody">
+                    <!-- Orders will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <i class="fas fa-bell"></i> <span id="notification-text"></span>
+    </div>
+
+    <script>
+        let orders = [];
+        let filteredOrders = [];
+        let currentFilter = 'all';
+
+        function loadOrders() {
+            const previousOrders = orders.length;
+            orders = JSON.parse(localStorage.getItem('admin_orders')) || [];
+            updateStats();
+            filterOrders(currentFilter);
+
+            // Show notification for new orders on page load
+            if (orders.length > previousOrders) {
+                const newOrderCount = orders.length - previousOrders;
+                showNotification(`Ada ${newOrderCount} pesanan baru!`, 'success');
+            }
+        }
+
+        function updateStats() {
+            const total = orders.length;
+            const pending = orders.filter(o => o.status === 'pending').length;
+            const processing = orders.filter(o => o.status === 'processing').length;
+            const completed = orders.filter(o => o.status === 'completed').length;
+
+            document.getElementById('total-orders').textContent = total;
+            document.getElementById('pending-orders').textContent = pending;
+            document.getElementById('processing-orders').textContent = processing;
+            document.getElementById('completed-orders').textContent = completed;
+        }
+
+        function filterOrders(status) {
+            currentFilter = status;
+            if (status === 'all') {
+                filteredOrders = orders;
+            } else {
+                filteredOrders = orders.filter(order => order.status === status);
+            }
+            renderOrders();
+        }
+
+        function renderOrders() {
+            const tbody = document.getElementById('orders-tbody');
+            tbody.innerHTML = '';
+
+            filteredOrders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.id}</td>
+                    <td>${order.name}</td>
+                    <td>Rp ${order.total.toLocaleString()}</td>
+                    <td><span class="status ${order.status}">${getStatusText(order.status)}</span></td>
+                    <td>${new Date(order.timestamp).toLocaleDateString('id-ID')}</td>
+                    <td>
+                        ${order.status === 'pending' ? '<button class="action-btn process" onclick="updateOrderStatus(' + order.id + ', \'processing\')">Proses</button>' : ''}
+                        ${order.status === 'processing' ? '<button class="action-btn complete" onclick="updateOrderStatus(' + order.id + ', \'completed\')">Selesai</button>' : ''}
+                        ${order.status !== 'completed' && order.status !== 'cancelled' ? '<button class="action-btn cancel" onclick="updateOrderStatus(' + order.id + ', \'cancelled\')">Batalkan</button>' : ''}
+                        <button class="action-btn" style="background: var(--muted); color: var(--text);" onclick="toggleOrderDetails(${order.id})">Detail</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+
+                // Add details row
+                const detailsRow = document.createElement('tr');
+                detailsRow.id = `details-${order.id}`;
+                detailsRow.style.display = 'none';
+                detailsRow.innerHTML = `
+                    <td colspan="6">
+                        <div class="order-details">
+                            <p><strong>Email:</strong> ${order.email}</p>
+                            <p><strong>Telepon:</strong> ${order.phone}</p>
+                            <p><strong>Alamat:</strong> ${order.address}</p>
+                            <p><strong>Metode Pembayaran:</strong> ${getPaymentText(order.paymentMethod)}</p>
+                            <h4>Item Pesanan:</h4>
+                            ${order.items.map(item => `
+                                <div class="order-item">
+                                    <img src="${item.image}" alt="${item.name}">
+                                    <div>
+                                        <strong>${item.name}</strong><br>
+                                        ${item.quantity} x Rp ${item.price.toLocaleString()}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(detailsRow);
+            });
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = newStatus;
+                localStorage.setItem('admin_orders', JSON.stringify(orders));
+                updateStats();
+                filterOrders(currentFilter);
+                showNotification(`Pesanan ${orderId} telah ${getStatusText(newStatus)}`, 'success');
+            }
+        }
+
+        function toggleOrderDetails(orderId) {
+            const detailsRow = document.getElementById(`details-${orderId}`);
+            detailsRow.style.display = detailsRow.style.display === 'none' ? 'table-row' : 'none';
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'Pending',
+                'processing': 'Diproses',
+                'completed': 'Selesai',
+                'cancelled': 'Dibatalkan'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getPaymentText(method) {
+            const paymentMap = {
+                'bank-transfer': 'Transfer Bank',
+                'bank-bca': 'Transfer BCA',
+                'bank-bri': 'Transfer BRI',
+                'bank-mandiri': 'Transfer Mandiri',
+                'e-wallet': 'E-Wallet',
+                'e-wallet-gopay': 'GoPay',
+                'e-wallet-ovo': 'OVO',
+                'e-wallet-dana': 'Dana',
+                'cod': 'Cash on Delivery'
+            };
+            return paymentMap[method] || method;
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notification-text');
+            text.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Check for new orders periodically
+        function checkForNewOrders() {
+            const currentOrders = JSON.parse(localStorage.getItem('admin_orders')) || [];
+            const lastChecked = localStorage.getItem('admin_last_checked') || 0;
+            const newOrders = currentOrders.filter(order => new Date(order.timestamp) > new Date(lastChecked));
+
+            if (newOrders.length > 0) {
+                showNotification(`Ada ${newOrders.length} pesanan baru!`, 'success');
+                localStorage.setItem('admin_last_checked', new Date().toISOString());
+                loadOrders();
+            } else if (currentOrders.length > orders.length) {
+                // Fallback for existing orders
+                loadOrders();
+            }
+        }
+
+        // Event listeners
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                filterOrders(btn.dataset.filter);
+            });
+        });
+
+        // Listen for real-time order notifications
+        const channel = new BroadcastChannel('camilan-emak-orders');
+        channel.onmessage = function(event) {
+            if (event.data.type === 'new_order') {
+                showNotification('Ada pesanan baru!', 'success');
+                loadOrders();
+            }
+        };
+
+        // Initialize
+        loadOrders();
+
+        // Check for new orders every 10 seconds
+        setInterval(checkForNewOrders, 10000);
+    </script>
+</body>
+</html>

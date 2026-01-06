@@ -1,0 +1,4 @@
+- [x] Add "Lokasi & Kontak" menu item to navigation in Untitled-1.html
+- [x] Add CSS styles for location section (.location-grid, etc.)
+- [x] Add new section id="lokasi" with Google Maps embed, contact info, and images
+- [x] Ensure responsive design for mobile

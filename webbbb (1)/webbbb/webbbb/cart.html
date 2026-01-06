@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keranjang Belanja - Camilan Emak</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f1de;
+            --accent: #e07a5f;
+            --secondary: #81b29a;
+            --muted: #f2cc8f;
+            --primary: #4a7c59;
+            --highlight: #f4a261;
+            --text: #3d405b;
+            --card: #ffffff;
+            --glass: rgba(255,255,255,0.8);
+            --radius: 16px;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: linear-gradient(180deg, var(--bg), #fff); color: var(--text); }
+        header { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; position: sticky; top: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(6px); z-index: 10; border-bottom: 1px solid rgba(0,0,0,0.03); }
+        .brand { display: flex; gap: 12px; align-items: center; }
+        .logo { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
+        .logo .logo-img { height: 40px; }
+        nav a { margin-left: 18px; color: var(--muted); text-decoration: none; font-weight: 600; }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background-color: var(--text);
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        nav.mobile-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            flex-direction: column;
+            padding: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+            border-radius: 0 0 16px 16px;
+        }
+
+        nav.mobile-menu a {
+            margin: 10px 0;
+            text-align: center;
+            padding: 12px 0;
+            border-radius: 8px;
+            margin-left: 0;
+            transition: background-color 0.3s;
+        }
+
+        nav.mobile-menu a:hover {
+            background-color: rgba(129, 178, 154, 0.1);
+        }
+        .back-btn { background: var(--secondary); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 14px; transition: all 0.3s ease; }
+        .back-btn:hover { background: var(--primary); transform: translateY(-2px); }
+        .cart-container { max-width: 1200px; margin: 0 auto; padding: 48px 28px; animation: fadeIn 0.8s ease-out; }
+        .cart-header { text-align: center; margin-bottom: 40px; }
+        .cart-header h1 { margin: 0 0 8px; color: var(--primary); font-size: 2.5em; }
+        .cart-header p { margin: 0; color: var(--muted); font-size: 1.1em; }
+
+        .cart-item {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: slideInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+        .cart-item:nth-child(1) { animation-delay: 0.1s; }
+        .cart-item:nth-child(2) { animation-delay: 0.2s; }
+        .cart-item:nth-child(3) { animation-delay: 0.3s; }
+        .cart-item:nth-child(4) { animation-delay: 0.4s; }
+        .cart-item:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cart-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .cart-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 16px;
+            transition: transform 0.3s ease;
+        }
+        .cart-item img:hover { transform: scale(1.05); }
+
+        .item-details { flex: 1; }
+        .item-details h3 { margin: 0 0 8px; color: var(--primary); font-size: 1.2em; }
+        .item-details p { margin: 0; color: var(--muted); }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 4px;
+        }
+        .quantity-controls button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--secondary);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+        .quantity-controls button:hover {
+            background: var(--primary);
+            transform: scale(1.1);
+        }
+        .quantity-controls button:active { transform: scale(0.95); }
+        .quantity-controls span {
+            font-weight: 700;
+            min-width: 30px;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .item-price {
+            font-weight: 700;
+            color: var(--secondary);
+            font-size: 1.1em;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .remove-btn {
+            background: linear-gradient(135deg, var(--accent), #d84315);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        .remove-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(224, 122, 95, 0.3);
+        }
+
+        .cart-total {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 32px;
+            margin-top: 32px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.06);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: bounceIn 0.8s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .cart-total h3 { margin: 0 0 16px; color: var(--primary); font-size: 1.5em; }
+        .total-amount {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 24px;
+        }
+
+        .checkout-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 32px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(224, 122, 95, 0.3);
+        }
+        .checkout-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(224, 122, 95, 0.4);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 64px 32px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        .empty-cart h2 {
+            margin: 0 0 16px;
+            color: var(--primary);
+            font-size: 2em;
+        }
+        .empty-cart p {
+            margin: 0 0 32px;
+            color: var(--muted);
+            font-size: 1.1em;
+        }
+        .empty-cart a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            padding: 12px 24px;
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        .empty-cart a:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--secondary);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+        .notification.show { transform: translateX(0); }
+        .notification.success { background: var(--secondary); }
+        .notification.error { background: #dc3545; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            nav {
+                display: none;
+            }
+
+            nav.mobile-menu {
+                display: flex;
+            }
+
+            .cart-container {
+                padding: 24px 16px;
+            }
+
+            .cart-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 16px;
+                padding: 16px;
+            }
+
+            .cart-item img {
+                width: 80px;
+                height: 80px;
+            }
+
+            .cart-header h1 {
+                font-size: 1.8em;
+            }
+
+            .cart-header p {
+                font-size: 1em;
+            }
+
+            .quantity-controls {
+                justify-content: center;
+            }
+
+            .item-price {
+                margin-top: 8px;
+                font-size: 0.9em;
+            }
+
+            .remove-btn {
+                font-size: 13px;
+                padding: 8px 12px;
+            }
+
+            .cart-total {
+                padding: 24px 16px;
+            }
+
+            .total-amount {
+                font-size: 1.5em;
+            }
+
+            .checkout-btn {
+                padding: 12px 24px;
+                font-size: 1em;
+            }
+
+            .empty-cart {
+                padding: 48px 16px;
+            }
+
+            .empty-cart h2 {
+                font-size: 1.8em;
+            }
+
+            .empty-cart p {
+                font-size: 0.9em;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1023px) {
+            .cart-container {
+                padding: 32px 20px;
+            }
+
+            .cart-item {
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .cart-item img {
+                width: 90px;
+                height: 90px;
+            }
+
+            .cart-header h1 {
+                font-size: 2.2em;
+            }
+
+            .cart-header p {
+                font-size: 1.05em;
+            }
+
+            .quantity-controls button {
+                width: 30px;
+                height: 30px;
+            }
+
+            .item-price {
+                font-size: 1.05em;
+            }
+
+            .remove-btn {
+                font-size: 14px;
+            }
+
+            .cart-total {
+                padding: 28px;
+            }
+
+            .total-amount {
+                font-size: 1.8em;
+            }
+
+            .checkout-btn {
+                padding: 14px 28px;
+                font-size: 1.05em;
+            }
+
+            .empty-cart {
+                padding: 56px 24px;
+            }
+
+            .empty-cart h2 {
+                font-size: 1.9em;
+            }
+
+            .empty-cart p {
+                font-size: 1em;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .cart-container {
+                padding: 48px 28px;
+            }
+
+            .cart-item {
+                gap: 24px;
+                padding: 24px;
+            }
+
+            .cart-item img {
+                width: 100px;
+                height: 100px;
+            }
+
+            .cart-header h1 {
+                font-size: 2.5em;
+            }
+
+            .cart-header p {
+                font-size: 1.1em;
+            }
+
+            .quantity-controls button {
+                width: 32px;
+                height: 32px;
+            }
+
+            .item-price {
+                font-size: 1.1em;
+            }
+
+            .remove-btn {
+                font-size: 14px;
+            }
+
+            .cart-total {
+                padding: 32px;
+            }
+
+            .total-amount {
+                font-size: 2em;
+            }
+
+            .checkout-btn {
+                padding: 16px 32px;
+                font-size: 1.1em;
+            }
+
+            .empty-cart {
+                padding: 64px 32px;
+            }
+
+            .empty-cart h2 {
+                font-size: 2em;
+            }
+
+            .empty-cart p {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> Kembali</button>
+            <div class="logo"><img src="logo.jpeg" alt="Logo Camilan Emak" class="logo-img"></div>
+            <div>
+                <div style="font-weight:700">Camilan Emak</div>
+                <div style="font-size:12px;color:var(--muted)">Camilan rumahan, rasa penuh cinta</div>
+            </div>
+        </div>
+        <nav class="mobile-menu">
+            <a href="Untitled-1.html">Beranda</a>
+            <a href="products.html">Produk</a>
+            <a href="cart.html"><i class="fas fa-shopping-cart"></i> Keranjang</a>
+        </nav>
+        <div class="hamburger" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <div class="cart-container">
+        <div class="cart-header">
+            <h1><i class="fas fa-shopping-cart"></i> Keranjang Belanja</h1>
+            <p>Kelola produk yang ingin Anda beli</p>
+        </div>
+        <div id="cart-items"></div>
+        <div id="cart-total" class="cart-total" style="display: none;">
+            <h3>Total Pembayaran</h3>
+            <div class="total-amount">Rp <span id="total-price">0</span></div>
+            <a href="checkout.html" class="checkout-btn">
+                <i class="fas fa-credit-card"></i> Lanjut ke Checkout
+            </a>
+        </div>
+        <div id="empty-cart" class="empty-cart">
+            <h2><i class="fas fa-shopping-cart"></i> Keranjang Masih Kosong</h2>
+            <p>Yuk, tambah produk favorit Anda ke keranjang!</p>
+            <a href="products.html">
+                <i class="fas fa-shopping-bag"></i> Lihat Produk
+            </a>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i> <span id="notification-text"></span>
+    </div>
+
+    <script>
+        function loadCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            const emptyCart = document.getElementById('empty-cart');
+            cartItems.innerHTML = '';
+            let total = 0;
+
+            if (cart.length === 0) {
+                cartTotal.style.display = 'none';
+                emptyCart.style.display = 'block';
+                return;
+            }
+
+            emptyCart.style.display = 'none';
+            cartTotal.style.display = 'block';
+
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                cartItems.innerHTML += `
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}" loading="lazy">
+                        <div class="item-details">
+                            <h3>${item.name}</h3>
+                            <p>Rp ${item.price.toLocaleString()} per item</p>
+                        </div>
+                        <div class="quantity-controls">
+                            <button onclick="updateQuantity(${index}, -1)" title="Kurangi jumlah">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateQuantity(${index}, 1)" title="Tambah jumlah">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="item-price">Rp ${itemTotal.toLocaleString()}</div>
+                        <button class="remove-btn" onclick="removeItem(${index})" title="Hapus dari keranjang">
+                            <i class="fas fa-trash"></i> Hapus
+                        </button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('total-price').textContent = total.toLocaleString();
+        }
+
+        function updateQuantity(index, change) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart[index].quantity += change;
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+                showNotification('Produk dihapus dari keranjang', 'success');
+            } else {
+                showNotification(`Jumlah ${cart[index].name} diperbarui`, 'success');
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+        }
+
+        function removeItem(index) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const itemName = cart[index].name;
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+            showNotification(`${itemName} dihapus dari keranjang`, 'success');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notification-text');
+            text.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function toggleMenu() {
+            const menu = document.querySelector('nav.mobile-menu');
+            if (menu.style.display === 'flex') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'flex';
+            }
+        }
+
+        // Add smooth scrolling and loading animation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCart();
+
+            // Add loading animation for images
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.addEventListener('load', function() {
+                    this.style.opacity = '1';
+                });
+                img.style.opacity = '0';
+                img.style.transition = 'opacity 0.3s ease';
+            });
+        });
+
+        // Add keyboard navigation for quantity controls
+        document.addEventListener('keydown', function(e) {
+            if (e.target.closest('.quantity-controls')) {
+                const button = e.target.closest('button');
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    button.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
